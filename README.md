@@ -39,26 +39,51 @@ git clone https://github.com/zhubao315/ulife-os-infra.git
 3. 运行审计：`python3 scripts/audit.py ./my-pai`（检查骨架是否合规）。
 4. 需要时按 `references/` 深入各主题。
 
-## 四种典型用法
+## 四种工作模式 + 统一 CLI（v2.0）
 
-| 你说 | Skill 做 |
-|---|---|
-| "让 AI 记住我 / 加载我的背景" | 生成/挂载 TELOS 身份契约 |
-| "我的长任务总是丢上下文" | 应用长时程三件套（压缩/笔记/子Agent） |
-| "把这个工作流封装成 Skill" | 按确定性优先链 + agentskills 规范生成能力包 |
-| "审计我的 AI 基础设施" | 跑 `scripts/audit.py` + 成熟度自检 |
+所有工具零第三方依赖（Python 3.10+ 标准库）。统一入口 `scripts/ulife.py`：
 
-## 目录结构
+```bash
+# Initialize（三档：starter / standard / advanced）
+python3 scripts/ulife.py init --target ./my-ulife --profile starter [--dry-run]
+
+# Audit（五层审计，JSON 或 Markdown）
+python3 scripts/ulife.py audit --target ./my-ulife [--format json]
+python3 scripts/ulife.py doctor --target ./my-ulife
+
+# Integrate（发现现有资产，禁止未审计建平行系统）
+python3 scripts/ulife.py integrate --target . [--discover]
+
+# Evolve（观测 / 瓶颈 / 快照 / 回滚）
+python3 scripts/ulife.py observe --target ./my-ulife --format md
+python3 scripts/ulife.py evolve --action bottlenecks --target ./my-ulife
+python3 scripts/ulife.py evolve --action snapshot --target ./my-ulife --backup ./bak
+
+# 能力子命令
+python3 scripts/ulife.py budget --window 200000 --system 4000 --tools 8000 --tier t2
+python3 scripts/ulife.py route --task "复杂架构研究" --level PRIVATE
+python3 scripts/ulife.py receipt --target ./my-ulife --action publish --result success --evidence <url>
+python3 scripts/ulife.py memory-backup --target ./my-ulife --out backup.json
+python3 scripts/ulife.py memory-restore --target ./my-ulife --backup backup.json
+python3 scripts/ulife.py task --action new --objective "研究方案"
+python3 scripts/ulife.py grant --target ./my-ulife --op write --file USER/identity/X.md --diff <hash> --approver <name>
+```
+
+> 旧入口 `scripts/init_pai.py` / `scripts/audit.py` 保留为兼容 shim，转发到新引擎。
+
+## 目录结构（v2.0）
 
 ```
 ulife-os-infra/
-├── SKILL.md              # 契约 + 触发语 + 工作流（主入口）
-├── references/           # 六主题按需读（身份/记忆/技能/权限/钩子/协议/维护）
-├── templates/            # TELOS 十文件 + 身份契约/钩子/权限/自检模板
-├── scripts/              # audit.py（只读审计）· init_pai.py（初始化）
-├── examples/             # 最小可用示例
-├── LICENSE               # MIT
-└── CHANGELOG.md          # 版本与迭代日志
+├── SKILL.md              # 契约 + 四工作模式 + 动态预算（主入口）
+├── references/           # 10+ 主题按需读（身份/记忆/技能/权限/钩子/协议/维护/入职/路由/安全/运维/观测）
+├── templates/            # TELOS 十文件 + starter/BOUNDARIES + 身份契约/钩子/权限/自检
+├── scripts/              # ulife.py 统一 CLI + 8 个 engine（零依赖）
+├── schemas/              # memory / receipt / task / policy 四份 JSON Schema
+├── tests/ + .github/     # 34 项单元测试 + CI 工作流
+├── examples/             # 可运行示例
+├── AUDIT_REPORT.md · GAP_ANALYSIS.md · ARCHITECTURE_PROPOSAL.md · IMPLEMENTATION_PLAN.md
+├── LICENSE · CHANGELOG.md · DISCOVERABILITY.md
 ```
 
 ## 设计原则

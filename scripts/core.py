@@ -12,13 +12,19 @@ PROFILES = {
 CANON = Path(__file__).resolve().parent.parent  # 技能包根
 
 def safe_join(root: Path, rel: str) -> Path:
-    """防路径穿越与危险链接：rel 必须保持为 root 下普通文件。"""
-    target = (root / rel).resolve()
+    """防路径穿越与危险链接：rel 必须保持为 root 下普通文件。
+    逐级检查每一段是否为 symlink（含指向 root 自身的链接），再检查解析后越界。"""
     root_r = root.resolve()
+    cur = root_r
+    for part in Path(rel).parts:
+        if part in (".", ""):
+            continue
+        cur = cur / part
+        if cur.is_symlink():
+            raise ValueError(f"拒绝符号链接: {rel}（段 {part}）")
+    target = (root_r / rel).resolve()
     if not str(target).startswith(str(root_r) + "/") and target != root_r:
         raise ValueError(f"路径越界: {rel}")
-    if target.is_symlink():
-        raise ValueError(f"拒绝符号链接: {rel}")
     return target
 
 def sha256(text: str) -> str:
