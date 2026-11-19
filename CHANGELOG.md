@@ -9,6 +9,15 @@ tags:
 
 # Changelog
 
+## 1.4.0 — 2026-11-19
+
+专业能力（Memory / Policy / Receipt / Routing）：
+1. Memory 完整化：export / backup / restore（merge 不覆盖）/ 保留期清理（用户自主权）/ 推断不冒充事实。
+2. Policy 数据分级：PUBLIC/INTERNAL/PRIVATE/RESTRICTED + 五档风险矩阵 + 外发门禁 `can_send_external()`。
+3. Receipt Engine：Outbox 回执落盘/校验/OVP 证据纪律/审计关联 + `receipt` 子命令。
+4. Model Routing Engine：本地/云端决策器 + 敏感数据外发自动拦截 + `route` 子命令。
+5. references/policy.md + operations.md；新增 2 个 CLI 子命令组（route/receipt/memory-backup/memory-restore）。
+
 ## 1.3.0 — 2026-11-19
 
 易用性升级（Audit First / Integrate / 动态预算 / Memory Engine）：

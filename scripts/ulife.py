@@ -9,7 +9,7 @@
 """
 import argparse, sys
 from pathlib import Path
-import init_engine, audit_engine, policy_engine, memory_engine, integrate_engine, budget_engine
+import init_engine, audit_engine, policy_engine, memory_engine, integrate_engine, budget_engine, receipt_engine, routing_engine
 
 def main():
     ap = argparse.ArgumentParser(description="uLife OS Infra CLI")
@@ -54,6 +54,25 @@ def main():
     p.add_argument("--system", type=int, default=4000)
     p.add_argument("--tools", type=int, default=8000)
     p.add_argument("--tier", default="t2", choices=["t1", "t2", "t3"])
+
+    p = sub.add_parser("route")
+    p.add_argument("--task", required=True)
+    p.add_argument("--level", choices=["PUBLIC","INTERNAL","PRIVATE","RESTRICTED"])
+
+    p = sub.add_parser("receipt")
+    p.add_argument("--target", default=".")
+    p.add_argument("--action", required=True)
+    p.add_argument("--result", required=True, choices=["success","failure","partial"])
+    p.add_argument("--evidence", default="")
+    p.add_argument("--approver", default="")
+
+    p = sub.add_parser("memory-backup")
+    p.add_argument("--target", default=".")
+    p.add_argument("--out", required=True)
+
+    p = sub.add_parser("memory-restore")
+    p.add_argument("--target", default=".")
+    p.add_argument("--backup", required=True)
 
     args = ap.parse_args()
     root = Path(getattr(args, "target", "."))
@@ -108,6 +127,23 @@ def main():
         print(json.dumps({"window": args.window, "system": args.system, "tools": args.tools,
                           "effective_budget": eff, "tier": args.tier,
                           "tier_budget": budget_engine.tier_budget(eff, args.tier)}, indent=2))
+
+    elif args.cmd == "route":
+        print(json.dumps(routing_engine.decide(args.task, args.level), ensure_ascii=False, indent=2))
+    elif args.cmd == "receipt":
+        r = receipt_engine.build_receipt(args.action, args.result, args.evidence, approver=args.approver)
+        errs = receipt_engine.validate(r)
+        if errs:
+            print("回执校验失败:", errs)
+            sys.exit(1)
+        receipt_engine.persist(root, r)
+        print("回执已落盘:", r["receipt_id"])
+    elif args.cmd == "memory-backup":
+        snap = memory_engine.backup(root, args.out)
+        print("备份完成:", snap["count"], "条记忆 ->", args.out)
+    elif args.cmd == "memory-restore":
+        n = memory_engine.restore(root, args.backup, merge=True)
+        print("恢复完成:", n, "条（merge 模式，不覆盖现有）")
 
 if __name__ == "__main__":
     main()

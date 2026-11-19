@@ -36,3 +36,26 @@ def verify(root: Path, grant_id: str, diff_hash: str) -> bool:
     g["receipt"] = datetime.datetime.now().isoformat()
     p.write_text(json.dumps(g, ensure_ascii=False, indent=2), encoding="utf-8")
     return True
+
+
+# ── v1.4：数据分级 + 风险矩阵 ──────────────────────────
+DATA_LEVELS = ["PUBLIC", "INTERNAL", "PRIVATE", "RESTRICTED"]
+RISK_MATRIX = {
+    "read_only":          {"level": "L0", "approval": False, "external_ok": True},
+    "internal_reversible":{"level": "L1", "approval": False, "external_ok": True},
+    "user_asset_write":   {"level": "L2", "approval": True,  "external_ok": False},
+    "external_send":      {"level": "L3", "approval": True,  "external_ok": True},
+    "irreversible":       {"level": "L3", "approval": True,  "external_ok": False},
+}
+
+def can_send_external(data_level, operation="external_send", authorized=False):
+    """数据分级门禁：PRIVATE/RESTRICTED 必须带显式授权凭据(authorized=True)方可外发。"""
+    rule = RISK_MATRIX.get(operation, RISK_MATRIX["irreversible"])
+    if data_level in ("PRIVATE", "RESTRICTED") and not authorized:
+        return False, f"{data_level} 数据需显式授权凭据方可外发"
+    if not rule["external_ok"]:
+        return False, f"操作 {operation} 不允许外发"
+    return True, "允许"
+
+def risk_of(operation):
+    return RISK_MATRIX.get(operation, RISK_MATRIX["irreversible"])

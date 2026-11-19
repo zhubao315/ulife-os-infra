@@ -67,3 +67,46 @@ def lint(root):
 def datetime_now():
     import datetime
     return datetime.datetime.now().isoformat()
+
+
+# ── v1.4：导出 / 备份 / 恢复 / 保留期 / 用户主动删除 ────
+def export_memories(root, out_path):
+    items = load_all(root)
+    Path(out_path).write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+    return len(items)
+
+def backup(root, out_path):
+    """备份整个 USER/memory 目录为 JSON 快照（只读，不改动原文件）。"""
+    items = load_all(root)
+    snap = {"backup_at": datetime_now(), "count": len(items), "memories": items}
+    Path(out_path).write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding="utf-8")
+    return snap
+
+def restore(root, backup_path, merge=True):
+    """从备份恢复；默认 merge（不删现有），冲突 id 保留现有版本。"""
+    snap = json.loads(Path(backup_path).read_text(encoding="utf-8"))
+    target = Path(root) / "USER" / "memory"
+    target.mkdir(parents=True, exist_ok=True)
+    existing = {m.get("id") for m in load_all(root)}
+    restored = 0
+    for m in snap.get("memories", []):
+        if m.get("id") in existing and merge:
+            continue
+        (target / (m["id"] + ".json")).write_text(json.dumps(m, ensure_ascii=False, indent=2), encoding="utf-8")
+        restored += 1
+    return restored
+
+def purge_expired(root, require_owner=True):
+    """清理过期记忆；require_owner=True 时只报告候选，不自动删（用户自主权）。"""
+    items = load_all(root)
+    now = datetime_now()
+    expired = [m for m in items if m.get("expires_at") and m["expires_at"] < now]
+    if require_owner:
+        return {"candidates": [m.get("id") for m in expired], "deleted": []}
+    deleted = []
+    for m in expired:
+        p = Path(root) / "USER" / "memory" / (m["id"] + ".json")
+        if p.exists():
+            p.unlink()
+            deleted.append(m["id"])
+    return {"candidates": [m.get("id") for m in expired], "deleted": deleted}
