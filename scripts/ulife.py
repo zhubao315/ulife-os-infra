@@ -9,7 +9,7 @@
 """
 import argparse, sys
 from pathlib import Path
-import init_engine, audit_engine, policy_engine, memory_engine, integrate_engine, budget_engine, receipt_engine, routing_engine
+import init_engine, audit_engine, policy_engine, memory_engine, integrate_engine, budget_engine, receipt_engine, routing_engine, observability_engine, orchestration_engine, evolution_engine
 
 def main():
     ap = argparse.ArgumentParser(description="uLife OS Infra CLI")
@@ -73,6 +73,21 @@ def main():
     p = sub.add_parser("memory-restore")
     p.add_argument("--target", default=".")
     p.add_argument("--backup", required=True)
+
+    p = sub.add_parser("observe")
+    p.add_argument("--target", default=".")
+    p.add_argument("--format", default="md", choices=["md", "json"])
+
+    p = sub.add_parser("task")
+    p.add_argument("--action", choices=["new", "validate", "verify"], required=True)
+    p.add_argument("--objective", default="")
+    p.add_argument("--task-file", default="")
+    p.add_argument("--outputs", nargs="*", default=[])
+
+    p = sub.add_parser("evolve")
+    p.add_argument("--action", choices=["bottlenecks", "snapshot", "rollback"], required=True)
+    p.add_argument("--target", default=".")
+    p.add_argument("--backup", default="")
 
     args = ap.parse_args()
     root = Path(getattr(args, "target", "."))
@@ -144,6 +159,35 @@ def main():
     elif args.cmd == "memory-restore":
         n = memory_engine.restore(root, args.backup, merge=True)
         print("恢复完成:", n, "条（merge 模式，不覆盖现有）")
+
+    elif args.cmd == "observe":
+        if args.format == "json":
+            print(json.dumps(observability_engine.collect(root), ensure_ascii=False, indent=2))
+        else:
+            print(observability_engine.report(root))
+    elif args.cmd == "task":
+        if args.action == "new":
+            task = orchestration_engine.make_task(args.objective)
+            print(json.dumps(task, ensure_ascii=False, indent=2))
+        elif args.action == "validate":
+            task = json.loads(Path(args.task_file).read_text(encoding="utf-8"))
+            errs = orchestration_engine.validate(task)
+            print("合法" if not errs else "错误: " + "; ".join(errs))
+            sys.exit(1 if errs else 0)
+        elif args.action == "verify":
+            task = json.loads(Path(args.task_file).read_text(encoding="utf-8"))
+            print(json.dumps(orchestration_engine.verify_result(task, args.outputs), ensure_ascii=False))
+    elif args.cmd == "evolve":
+        if args.action == "bottlenecks":
+            r = audit_engine.run(root, resolve_profile())
+            obs = observability_engine.collect(root)
+            for level, msg in evolution_engine.find_bottlenecks(r.counts(), obs):
+                print(f"[{level}] {msg}")
+        elif args.action == "snapshot":
+            print("快照:", evolution_engine.snapshot(root, args.backup or (str(root) + "-backup")))
+        elif args.action == "rollback":
+            evolution_engine.rollback(args.backup, root)
+            print("已从快照回滚")
 
 if __name__ == "__main__":
     main()

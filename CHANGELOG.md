@@ -9,6 +9,15 @@ tags:
 
 # Changelog
 
+## 2.0.0 — 2026-11-19
+
+系统化治理（Observability / Orchestration / Evolution）：
+1. Observability Engine：10 指标定义 + 可验证数据源计算 + NOT MEASURED 诚实语义 + `observe` 子命令。
+2. Orchestration Engine：统一 Task Contract + 最小信息委托 + expected_output 结果验证 + `task` 子命令。
+3. Evolution Engine：基于真实审计/观测数据发现瓶颈 + 变更前快照 + 回滚 + `evolve` 子命令。
+4. references/observability.md；CLI 新增 observe/task/evolve 三子命令。
+5. 路线图 v1.2→v1.3→v1.4→v2.0 全部完成（任务书闭环）。
+
 ## 1.4.0 — 2026-11-19
 
 专业能力（Memory / Policy / Receipt / Routing）：
