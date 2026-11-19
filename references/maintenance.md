@@ -30,16 +30,25 @@ tags:
 9. 链接健康（断链 0 / 锚点 0）
 10. 闭环至少跑过 1 轮
 
-## 质量门命令卡（四项必绿）
+## 质量门：Standalone / Integrated 双模式（v1.2）
+
+> **Standalone Mode（无需外部脚本）**：本 Skill 自带工具，任何用户安装即可用。
 ```bash
-cd /data/obsidian/hermes/09-REFERENCE/93-脚本   # 本库路径；通用环境替换为你的脚本目录
-bash quality_gate.sh            # 8 项审计（任何写入后必跑）
-python3 link_checker.py --full  # 断链
-python3 anchor_lint.py          # 锚点 + 谓词
-python3 frontmatter_check.py    # FM
-python3 tag_audit.py            # 标签
+python3 scripts/ulife.py audit --target <your-pai> --format json   # 五层审计
+python3 -m unittest discover -s tests                              # 回归测试
 ```
-放行标准：**断链 0 / 锚点 0 / FM 合规 / 标签 0 越界**四项全绿。
+
+> **Integrated Mode（可选，对接你已有的基础设施）**：路径必须参数化，不得硬编码。
+```bash
+ULIFE_TOOLS_DIR="${ULIFE_TOOLS_DIR:-<your-tools-dir>}" bash "$ULIFE_TOOLS_DIR/quality_gate.sh"
+python3 "$ULIFE_TOOLS_DIR/link_checker.py" --full
+python3 "$ULIFE_TOOLS_DIR/anchor_lint.py"
+python3 "$ULIFE_TOOLS_DIR/frontmatter_check.py"
+python3 "$ULIFE_TOOLS_DIR/tag_audit.py"
+```
+> 个人知识库的绝对路径（如原 `/data/obsidian/hermes/09-REFERENCE/93-脚本`）不得出现在公开文档中；用 `ULIFE_TOOLS_DIR` 环境变量替代。
+
+放行标准：**PASS ≥ 阈值、ERROR = 0、NOT CHECKED 显式列出**。没有数据依据的项不得标绿。
 
 > **收官期护栏**：若处于交付冲刺期，任何基础设施优化先答「它服务哪项具体交付？」答不出一律冻结——杜绝用打磨工具替代实际交付。
 

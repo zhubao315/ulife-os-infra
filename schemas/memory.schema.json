@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uLife OS Memory Record",
+  "type": "object",
+  "required": ["id","type","content","source","created_at","status"],
+  "properties": {
+    "id": {"type":"string"},
+    "type": {"enum":["explicit_fact","inferred_preference","episodic","semantic","procedural","temporary","unverified_hypothesis"]},
+    "content": {"type":"string"},
+    "source": {"type":"string"},
+    "created_at": {"type":"string","format":"date-time"},
+    "updated_at": {"type":"string"},
+    "last_verified": {"type":"string"},
+    "confidence": {"enum":["high","medium","low"]},
+    "sensitivity": {"enum":["PUBLIC","INTERNAL","PRIVATE","RESTRICTED"]},
+    "status": {"enum":["captured","classified","validated","approved","persisted","archived"]},
+    "expires_at": {"type":["string","null"]},
+    "links": {"type":"array","items":{"type":"string"}}
+  }
+}

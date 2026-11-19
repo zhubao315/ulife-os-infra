@@ -9,6 +9,21 @@ tags:
 
 # Changelog
 
+## 1.2.0 — 2026-11-19
+
+**工程修复版本**（评审 6.5 → 目标 8+）：从 Blueprint 迈向 Builder & Governance Skill。
+
+1. **审计取证**：AUDIT_REPORT / GAP_ANALYSIS / ARCHITECTURE_PROPOSAL / IMPLEMENTATION_PLAN 四文档落盘，先审计后修改。
+2. **统一 CLI**：`scripts/ulife.py`（init / audit / doctor / grant / verify），零第三方依赖。
+3. **canonical 初始化**（P0-01）：init 从 `templates/telos/` + `templates/starter/BOUNDARIES.md` 复制，幂等、不覆盖、dry-run、冲突检测、INIT_RECEIPT 回执；Starter/Standard/Advanced 三档。
+4. **五层审计**（P0-02）：Structure/Content/Security/Operational/Value，JSON+Markdown 双报告，PASS/WARNING/ERROR/**NOT CHECKED** 诚实语义；starter 档不误报 ERROR。
+5. **一次性授权凭据**（P0-03）：grant/verify，绑定操作/目标/Diff/授权人/有效期/回执，单次消费；明确 `ULIFE_GUARD_ACK=1` 仅为意图标识。
+6. **去硬编码**（P0-04）：Standalone/Integrated 双模式，`ULIFE_TOOLS_DIR` 环境变量替代私人绝对路径。
+7. **测试与 CI**（P0-05）：4 组 11 项 unittest 全通过 + GitHub Actions 工作流（单测 + CLI smoke + 审计门禁）。
+8. **规范归位**：自定义 frontmatter 字段收进 `metadata`，license 保留顶层；SKILL.md 增四种工作模式 + 动态预算公式。
+9. **数据契约**：schemas/ 新增 memory / receipt / task / policy 四份 JSON Schema。
+10. **兼容 shim**：旧 `init_pai.py` / `audit.py` 转发到新引擎，存量用户不破坏。
+
 ## 1.1.1 — 2026-11-19
 
 命名简化定稿：技能技术名 `ulife-os-infra`（规范合规小写）、展示名 `uLife-OS-infra`，目录 / name / 仓库 URL 同步。

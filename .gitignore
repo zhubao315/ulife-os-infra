@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 测试与临时
+.pytest_cache/
+.coverage
+*.log
+
+# 本地初始化产物
+my-ulife/
+my-pai/
+INIT_RECEIPT.json
+
+# 系统
+.DS_Store

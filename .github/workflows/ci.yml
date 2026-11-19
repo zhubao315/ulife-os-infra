@@ -1,0 +1,17 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: CLI smoke
+        run: |
+          python scripts/ulife.py init --target /tmp/ulife-smoke --profile starter
+          python scripts/ulife.py audit --target /tmp/ulife-smoke --format json > /tmp/audit.json
+          python -c "import json;d=json.load(open('/tmp/audit.json'));assert d['counts']['ERROR']==0"

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uLife OS Outbox Receipt",
+  "type": "object",
+  "required": ["receipt_id","action","result","timestamp","verified"],
+  "properties": {
+    "receipt_id": {"type":"string"},
+    "action": {"type":"string"},
+    "result": {"enum":["success","failure","partial"]},
+    "external_evidence": {"type":"string"},
+    "timestamp": {"type":"string"},
+    "verified": {"type":"boolean"},
+    "approver": {"type":"string"}
+  }
+}

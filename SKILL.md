@@ -1,19 +1,19 @@
 ---
 name: ulife-os-infra
 description: "uLife OS 个人智能体操作系统（Personal Agent OS）构建与治理 Skill：用 TELOS 十文件定义身份、以热/温/冷分层记忆承载上下文、按 Goal→Code→CLI→Prompt→Agent 的确定性优先链封装能力，并用 USER/SYSTEM 分离 + 事件钩子 + 权限护栏把概率性 AI 跑在确定性轨道上。当用户要『从零搭建个人 AI 系统 / 智能体操作系统』『让 AI 记住我/懂我』『设计我的数字助理/第二大脑』『把身份/记忆/技能标准化』『审计我的 AI 基础设施是否健康』『配置冷启动上下文预算 / 人机接力检查点』时使用。默认只读诊断，不物理删除，不替用户做关系/伦理决策。"
-version: "1.1.1"
-license: "MIT"
-compatibility: "跨平台：Claude Code / Codex / Cursor / 任意支持 Agent Skills 的客户端；仅需 Markdown 文件，无运行时依赖。"
 title: "uLife-OS-infra — uLife OS Personal Agent OS Skill"
-metadata:
-  author: "zhubao315"
-  origin: "github.com/danielmiessler/Personal_AI_Infrastructure"
-  source_guide: "uLife OS：个人智能体操作系统实战指南 v2.1"
 created: 2026-11-18
 tags:
   - "维度/科技"
   - "类型/参考"
   - "来源/项目"
+license: "MIT"
+compatibility: "跨平台：Claude Code / Codex / Cursor / 任意支持 Agent Skills 的客户端；核心零依赖，工具脚本需 Python 3.10+ 标准库。"
+metadata:
+  version: "1.2.0"
+  author: "zhubao315"
+  origin: "github.com/danielmiessler/Personal_AI_Infrastructure"
+  source_guide: "uLife OS：个人智能体操作系统实战指南 v2.1"
 ---
 
 # uLife OS — Personal Agent OS
@@ -64,6 +64,17 @@ tags:
 6. **安全从第一天设计**——权限验证 + MCP 安全清单 + 确定性护栏 + 人机接力检查点（低风险自动放行、高风险挂起审批）。
 7. **允许说"不知道"**——明确的不确定性比幻觉有价值。
 8. **从简单开始，允许迭代**——先最小可用，再演进。
+
+## 3.5 四种工作模式（v1.2）
+
+| 模式 | 命令 | 用途 |
+|---|---|---|
+| **Initialize** | `ulife.py init --profile starter/standard/advanced [--dry-run]` | 从零初始化（canonical 模板、幂等、不覆盖） |
+| **Audit** | `ulife.py audit [--format json]` | 审计现有基础设施（五层 + NOT CHECKED 诚实语义） |
+| **Integrate** | 先 Audit 再迁移，禁止未审计建平行系统 | 接入已有 Obsidian / Skills / MCP |
+| **Evolve** | 五步回路 + 版本迁移 | 小步升级，可回滚 |
+
+> 动态预算：`Effective Context Budget = Model Window - System - Tool Schemas - Reserved Output - Safety Margin`；T1/T2/T3 是起步默认值，不是固定上限。
 
 ## 4. 工作流（用户说"搭建"时按此顺序）
 
