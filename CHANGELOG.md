@@ -9,6 +9,15 @@ tags:
 
 # Changelog
 
+## 1.3.0 — 2026-11-19
+
+易用性升级（Audit First / Integrate / 动态预算 / Memory Engine）：
+1. 入职引导 references/onboarding.md：Starter 为有效长期状态，三档 + Audit First 流程。
+2. Integrate Engine：发现现有 Obsidian/CLAUDE.md/Skills/MCP/Memory 资产，生成适配方案，禁止未审计建平行系统。
+3. 动态预算 Engine：Effective Context Budget 公式 + 使用率探测 + `budget` 子命令；T1/T2/T3 降级为起步默认值。
+4. Memory Engine：统一 Schema 校验、7 类型 + 6 状态生命周期、冲突检测、推断不得冒充事实、`memory-lint` 子命令。
+5. 模型路由与数据分级 references/routing.md（PUBLIC/INTERNAL/PRIVATE/RESTRICTED）。
+
 ## 1.2.0 — 2026-11-19
 
 **工程修复版本**（评审 6.5 → 目标 8+）：从 Blueprint 迈向 Builder & Governance Skill。

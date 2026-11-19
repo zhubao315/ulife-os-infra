@@ -9,7 +9,7 @@
 """
 import argparse, sys
 from pathlib import Path
-import init_engine, audit_engine, policy_engine
+import init_engine, audit_engine, policy_engine, memory_engine, integrate_engine, budget_engine
 
 def main():
     ap = argparse.ArgumentParser(description="uLife OS Infra CLI")
@@ -42,8 +42,21 @@ def main():
     p.add_argument("--grant", required=True)
     p.add_argument("--diff", required=True)
 
+    p = sub.add_parser("memory-lint")
+    p.add_argument("--target", default=".")
+
+    p = sub.add_parser("integrate")
+    p.add_argument("--target", default=".")
+    p.add_argument("--discover", action="store_true", help="只输出发现到的资产 JSON")
+
+    p = sub.add_parser("budget")
+    p.add_argument("--window", type=int, default=200000)
+    p.add_argument("--system", type=int, default=4000)
+    p.add_argument("--tools", type=int, default=8000)
+    p.add_argument("--tier", default="t2", choices=["t1", "t2", "t3"])
+
     args = ap.parse_args()
-    root = Path(args.target)
+    root = Path(getattr(args, "target", "."))
 
     # 档位解析：显式参数 > INIT_RECEIPT.json > 默认 standard
     import json
@@ -80,6 +93,21 @@ def main():
         ok = policy_engine.verify(root, args.grant, args.diff)
         print("授权有效，已消费并记回执" if ok else "授权无效/过期/Diff 不匹配")
         sys.exit(0 if ok else 1)
+
+    elif args.cmd == "memory-lint":
+        r = memory_engine.lint(root)
+        print(json.dumps(r, ensure_ascii=False, indent=2))
+        sys.exit(1 if r["errors"] else 0)
+    elif args.cmd == "integrate":
+        if args.discover:
+            print(json.dumps(integrate_engine.discover(root), ensure_ascii=False, indent=2))
+        else:
+            print(integrate_engine.propose(root))
+    elif args.cmd == "budget":
+        eff = budget_engine.effective_budget(args.window, args.system, args.tools)
+        print(json.dumps({"window": args.window, "system": args.system, "tools": args.tools,
+                          "effective_budget": eff, "tier": args.tier,
+                          "tier_budget": budget_engine.tier_budget(eff, args.tier)}, indent=2))
 
 if __name__ == "__main__":
     main()
